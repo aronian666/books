@@ -23,7 +23,7 @@
     bind:results
     exact={[{ name: "book._id", value: object._id }]}
     model={Book}
-    {object}
+    bind:object
     table={Lend}
     title="Prestamos"
     {properties}
@@ -53,5 +53,10 @@
 </Details>
 
 <Modal bind:dialog id="messages">
-    <UpdateLend {dialog} index={lend} bind:results />
+    <UpdateLend
+        onSubmit={(o) => Book.findById(object._id).then((o) => (object = o))}
+        {dialog}
+        index={lend}
+        bind:results
+    />
 </Modal>

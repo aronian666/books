@@ -47,8 +47,12 @@ export default class Lend extends ActiveRecord {
         { name: "Acciones" }
     ]
     static async getResourses() {
-        const [books, students] = await Promise.all([Book.find({ limit: 1000 }, [{ name: "status", value: "Disponible" }]), Student.find({ limit: 1000 })])
-        return { books: books.books.results, students: students.students.results }
+        let [books, students] = await Promise.all([Book.find({ limit: 1000 }, [{ name: "status", value: "Disponible" }]), Student.find({ limit: 1000 })])
+        students = students.students.results.map(s => {
+            s.name = `${s.name} ${s.last}`
+            return s
+        })
+        return { books: books.books.results, students }
     }
     get statusClass() {
         if (this.status === "Prestado") return "lend"
