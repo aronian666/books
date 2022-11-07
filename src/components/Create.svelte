@@ -12,13 +12,14 @@
 </script>
 
 <form on:submit|preventDefault={create}>
-    {#each model.modifiers as { name, property, type, min, max, collection }}
+    {#each model.modifiers as { name, property, type, min, max, collection, required }}
         <fieldset>
             <label for={`${model.name.toLowerCase()}[${property}]`}
                 >{name}</label
             >
             {#if type === "select"}
                 <select
+                    {required}
                     name={`${model.name.toLowerCase()}[${property}]`}
                     id={`${model.name.toLowerCase()}[${property}]`}
                     bind:value={object[property]}
@@ -29,16 +30,17 @@
                     {/each}
                 </select>
             {:else if type === "date"}
-                <input type="date" bind:value={object[property]} />
+                <input type="date" bind:value={object[property]} {required} />
             {:else if type === "number"}
                 <input
                     type="number"
                     bind:value={object[property]}
                     {min}
                     {max}
+                    {required}
                 />
             {:else}
-                <input type="text" bind:value={object[property]} />
+                <input type="text" {required} bind:value={object[property]} />
             {/if}
         </fieldset>
     {/each}

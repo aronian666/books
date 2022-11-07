@@ -30,6 +30,7 @@
         <a
             href={`/${model.name.toLowerCase()}s/${object._id}.json`}
             class="button"
+            disabled={results.length > 0}
             on:click={(e) => {
                 if (!confirm("Estas segura de querer eliminar esto?"))
                     e.preventDefault();

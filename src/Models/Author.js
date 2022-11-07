@@ -9,7 +9,7 @@ export default class Author extends ActiveRecord {
     }
     static properties = "_id name createdAt"
     static modifiers = [
-        { property: "name", name: "Nombre", type: "text" }
+        { property: "name", name: "Nombre", type: "text", required: true }
     ]
     static sort = {
         name: "name",
@@ -17,7 +17,7 @@ export default class Author extends ActiveRecord {
     }
     static table = [
         { property: "name", name: "Nombre" },
-        { property: "createdAt", name: "Creacion" }
+        { property: "createdAt", name: "Creacion", transform(createdAt) { return createdAt.toLocaleString() } }
     ]
     static disabled = ["author_id"]
     static exact = []

@@ -195,3 +195,7 @@ td>span {
 .lend {
     background-color: darkturquoise;
 }
+
+a[disabled="true"] {
+    pointer-events: none;
+}

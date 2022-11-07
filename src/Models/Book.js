@@ -6,10 +6,10 @@ export default class Book extends ActiveRecord {
     #author_id
     static properties = "_id name count category {_id name} author {_id name} createdAt status"
     static modifiers = [
-        { property: "name", name: "Nombre", type: "text" },
-        { property: "author_id", name: "Autor", type: "select", collection: "authors" },
-        { property: "category_id", name: "Categoria", type: "select", collection: "categorys" },
-        { property: "count", name: "Cantidad", type: "number", min: 0 }
+        { property: "name", name: "Nombre", type: "text", required: true },
+        { property: "author_id", name: "Autor", type: "select", collection: "authors", required: true },
+        { property: "category_id", name: "Categoria", type: "select", collection: "categorys", required: true },
+        { property: "count", name: "Cantidad", type: "number", min: 0, required: true }
     ]
     static sort = {
         name: "name",

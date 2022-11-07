@@ -28,7 +28,7 @@ export default class Student extends ActiveRecord {
     static table = [
         { name: "Nombres", property: "name" },
         { name: "Apellidos", property: "last" },
-        { name: "Nivel", property: "nivel" },
+        { name: "Nivel", property: "nivelString" },
         { name: "Grado", property: "grade" },
         { name: "Creacion", property: "createdAt", transform(c) { return c.toLocaleString() } }
     ]
