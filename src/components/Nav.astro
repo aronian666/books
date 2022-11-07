@@ -1,0 +1,56 @@
+---
+const pages = [
+    { name: "Libros", path: "books" },
+    { name: "Prestamos", path: "lends" },
+    { name: "Categorias", path: "categories" },
+    { name: "Estudiantes", path: "students" },
+    { name: "Autores", path: "authors" },
+];
+const url = Astro.url.pathname;
+---
+
+<nav>
+    <div>
+        {
+            pages.map((page) => (
+                <a
+                    href={`/${page.path}`}
+                    class={`/${page.path}` === url ? "active" : ""}
+                >
+                    {page.name}
+                </a>
+            ))
+        }
+    </div>
+</nav>
+
+<slot />
+
+<style>
+    div {
+        width: 300px;
+        height: 100vh;
+        flex-direction: column;
+        border-radius: 2rem;
+        display: flex;
+        background-color: white;
+        padding: 2rem;
+        gap: 1rem;
+        position: sticky;
+        top: 0;
+    }
+    a {
+        padding: 1rem;
+        color: black;
+        border-radius: 1rem;
+        text-decoration: none;
+    }
+    a:hover {
+        background-color: #00000010;
+    }
+    a.active {
+        background-color: #1b59f820;
+        color: #1b59f8;
+        font-weight: bold;
+    }
+</style>

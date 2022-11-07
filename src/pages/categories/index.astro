@@ -1,0 +1,10 @@
+---
+import Layout from "../../layouts/Layout.astro";
+
+import Nav from "../../components/Nav.astro";
+import Categories from "../../components/Categories.svelte";
+---
+
+<Layout title="Libros" className="container">
+    <Categories client:visible />
+</Layout>

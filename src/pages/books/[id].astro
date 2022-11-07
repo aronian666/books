@@ -1,0 +1,12 @@
+---
+import Book from "../../Models/Book";
+import Layout from "../../layouts/Layout.astro";
+import Nav from "../../components/Nav.astro";
+import BookComponent from "../../components/Book.svelte";
+const { id } = Astro.params;
+const book = (await Book.findById(id)) as Book;
+---
+
+<Layout title={book.name}>
+    <BookComponent client:visible object={book} />
+</Layout>

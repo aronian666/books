@@ -1,0 +1,197 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+
+:root {
+    --blue: #1B59F8;
+    --gray: rgb(216, 216, 216);
+}
+
+* {
+    box-sizing: border-box;
+    font-family: inter;
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    background-color: #F9F9F9;
+}
+
+dialog {
+    margin: auto;
+    padding: 1rem;
+}
+
+form {
+    display: grid;
+    gap: 1rem;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+fieldset {
+    border: none;
+    display: grid;
+    gap: .25rem;
+
+}
+
+label {
+    font-weight: 600;
+    cursor: pointer;
+    text-transform: capitalize;
+}
+
+
+input,
+select {
+    padding: .75rem 1rem;
+    border-radius: .75rem;
+    border: 1px solid var(--gray);
+    outline: none;
+    font-size: 1rem;
+}
+
+input:focus {
+    border: 1px solid var(--blue);
+}
+
+button,
+a.button {
+    padding: .75rem 1rem;
+    background-color: var(--color);
+    color: white;
+    border: none;
+    border-radius: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+button {
+    cursor: pointer;
+}
+
+button.holed,
+a.button.holed {
+    color: var(--color, black);
+    border: 2px solid var(--color, black);
+    background-color: white;
+}
+
+button.holed:hover,
+a.button.holed:hover {
+    color: white;
+    background-color: var(--color, black);
+}
+
+.grid {
+    display: grid;
+}
+
+.grid.auto-fit {
+    grid-template-columns: repeat(auto-fit, minmax(var(--size, 250px), 1fr));
+}
+
+.grid.auto-fill {
+    grid-template-columns: repeat(auto-fill, minmax(var(--size, 250px), 1fr));
+}
+
+.grid.place-content {
+    place-content: center;
+}
+
+.flex {
+    display: flex;
+}
+
+.flex.column {
+    flex-direction: column;
+}
+
+.flex.column.reverse {
+    flex-direction: column-reverse;
+}
+
+.flex.reverse {
+    flex-direction: row-reverse;
+}
+
+.flex.wrap {
+    flex-wrap: wrap;
+}
+
+.flex.space-between {
+    justify-content: space-between;
+}
+
+.flex.space-around {
+    justify-content: space-around;
+}
+
+.flex.align-center {
+    align-items: center;
+}
+
+.gap {
+    gap: .5rem;
+}
+
+.container {
+    width: 90%;
+    margin: 0 auto;
+    display: grid;
+    gap: 1rem;
+}
+
+td {
+    padding: 1rem 0;
+}
+
+td,
+td>a {
+    color: #70768C;
+}
+
+td:not(:first-child) {
+    text-align: center;
+}
+
+td>button {
+    padding: .5rem .75rem;
+}
+
+td.name,
+td.name>* {
+    color: black;
+    font-weight: 600;
+}
+
+
+td>span {
+    color: white;
+    font-weight: 600;
+    border-radius: 1rem;
+    padding: .5rem .75rem;
+}
+
+.available {
+    background-color: green;
+}
+
+.spent {
+    background-color: tomato;
+
+}
+
+.back {
+    background-color: var(--blue);
+}
+
+.lend {
+    background-color: darkturquoise;
+}

@@ -1,0 +1,30 @@
+---
+export interface Props {
+	title: string;
+	className?: string;
+}
+
+const { title, className } = Astro.props;
+import Nav from "../components/Nav.astro";
+---
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+		<link rel="stylesheet" href="/app.css" />
+		<title>{title}</title>
+	</head>
+	<body class="flex">
+		<Nav />
+		<main
+			style="padding: 2rem; flex: 1 1 auto; gap: 2rem"
+			class="flex column"
+		>
+			<slot />
+		</main>
+	</body>
+</html>
