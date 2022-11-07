@@ -21,4 +21,5 @@ export default class Author extends ActiveRecord {
     ]
     static disabled = ["author_id"]
     static exact = []
+    static name = "Author"
 }

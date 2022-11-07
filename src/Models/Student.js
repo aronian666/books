@@ -36,4 +36,5 @@ export default class Student extends ActiveRecord {
     static nivels = ["Primaria", "Secundaria"]
     static getResourses() { return { nivels: [{ name: "Primaria", _id: 0 }, { name: "Secundaria", _id: 1 }] } }
     static disabled = ["student_id"]
+    static name = "Student"
 }

@@ -18,5 +18,6 @@ class Category extends ActiveRecord {
     ]
     static exact = []
     static disabled = ["category_id"]
+    static name = "Category"
 }
 export default Category

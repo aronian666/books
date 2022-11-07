@@ -55,4 +55,5 @@ export default class Lend extends ActiveRecord {
         if (this.status === "Devuelto") return "back"
         return ""
     }
+    static name = "Lend"
 }

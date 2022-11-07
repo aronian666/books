@@ -58,4 +58,5 @@ export default class Book extends ActiveRecord {
         if (this.status === "Disponible") return "available"
         return "spent"
     }
+    static name = "Book"
 }

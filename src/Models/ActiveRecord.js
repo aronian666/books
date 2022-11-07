@@ -41,6 +41,7 @@ export default class ActiveRecord {
         }`, { id })
     }
     static async request(query, variables = {}) {
+        console.log(query)
         const response = await fetch(`https://booksapi-eight.vercel.app/`, {
             method: "post",
             headers: {
