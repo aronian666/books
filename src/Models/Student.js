@@ -1,6 +1,6 @@
 import ActiveRecord from './ActiveRecord'
 export default class Student extends ActiveRecord {
-    constructor({ _id, name = "", nivel = 0, last = "", grade, createdAt }) {
+    constructor({ _id, name = "", nivel, last = "", grade, createdAt }) {
         super(Student)
         this._id = _id
         this.name = name
@@ -14,10 +14,10 @@ export default class Student extends ActiveRecord {
     }
     static properties = "_id name last nivel grade createdAt"
     static modifiers = [
-        { property: "name", name: "Nombres", type: "text" },
-        { property: "last", name: "Apellidos", type: "text" },
-        { property: "nivel", name: "Nivel", type: "select", collection: "nivels" },
-        { property: "grade", name: "Grado", type: "number" },
+        { property: "name", name: "Nombres", type: "text", required: true },
+        { property: "last", name: "Apellidos", type: "text", required: true },
+        { property: "nivel", name: "Nivel", type: "select", collection: "nivels", required: true },
+        { property: "grade", name: "Grado", type: "number", required: true },
     ]
     static sort = {
         name: "name",

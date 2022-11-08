@@ -1,0 +1,11 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Editorial from "../../Models/Editorial";
+import EditorialComponent from "../../components/Editorial.svelte";
+const { id } = Astro.params;
+const editorial = (await Editorial.findById(id)) as Editorial;
+---
+
+<Layout title={editorial.name}>
+    <EditorialComponent object={editorial} client:visible />
+</Layout>

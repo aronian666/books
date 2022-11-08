@@ -6,7 +6,6 @@
     export let disabled = [];
     const create = async () => {
         const data = await model.save(object);
-
         onSubmit(data);
     };
 </script>
@@ -14,21 +13,42 @@
 <form on:submit|preventDefault={create}>
     {#each model.modifiers as { name, property, type, min, max, collection, required }}
         <fieldset>
-            <label for={`${model.name.toLowerCase()}[${property}]`}
-                >{name}</label
-            >
+            <label for={`${model.name.toLowerCase()}[${property}]`}>
+                {name}
+            </label>
             {#if type === "select"}
-                <select
+                <input
+                    type="text"
+                    list={collection}
                     {required}
-                    name={`${model.name.toLowerCase()}[${property}]`}
-                    id={`${model.name.toLowerCase()}[${property}]`}
-                    bind:value={object[property]}
-                    class:disabled={disabled.includes(property)}
-                >
+                    readonly={disabled.includes(property)}
+                    value={(() => {
+                        const item = resourses[collection].find(
+                            (item) => item._id === object[property]
+                        );
+                        if (item) return item.name;
+                        return "";
+                    })()}
+                    on:change={(e) => {
+                        if (!collection) return;
+                        const item = resourses[collection].find(
+                            (item) => item.name === e.target.value
+                        );
+                        if (item) object[property] = item._id;
+                        else object[property] = undefined;
+                        if (!object[property]) {
+                            return e.target.setCustomValidity(
+                                "Lo que pusiste no existe, ve a crearlo por favor :0"
+                            );
+                        }
+                        e.target.setCustomValidity("");
+                    }}
+                />
+                <datalist id={collection}>
                     {#each resourses[collection] as option}
-                        <option value={option._id}>{option.name}</option>
+                        <option value={option.name} />
                     {/each}
-                </select>
+                </datalist>
             {:else if type === "date"}
                 <input type="date" bind:value={object[property]} {required} />
             {:else if type === "number"}
@@ -50,9 +70,3 @@
         >
     </slot>
 </form>
-
-<style>
-    select.disabled {
-        pointer-events: none;
-    }
-</style>

@@ -17,6 +17,11 @@
         ></td
     >
     <td>
+        <a href={`/editorials/${result.editorial._id}`}
+            >{result.editorial.name}
+        </a>
+    </td>
+    <td>
         {result.count}
     </td>
     <td>{result.createdAt.toDateString()}</td>

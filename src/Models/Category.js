@@ -7,7 +7,7 @@ class Category extends ActiveRecord {
         this.createdAt = createdAt && new Date(Number(createdAt))
     }
     static properties = "_id name createdAt"
-    static modifiers = [{ property: "name", name: "Nombre", type: "text" }]
+    static modifiers = [{ property: "name", name: "Nombre", type: "text", required: true }]
     static sort = {
         name: "name",
         createdAt: "createdAt"

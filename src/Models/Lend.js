@@ -27,9 +27,9 @@ export default class Lend extends ActiveRecord {
         return Math.round(difference / 86400000)
     }
     static modifiers = [
-        { name: "Libro", property: "book_id", type: "select", collection: "books" },
-        { name: "Estudiante", property: "student_id", type: "select", collection: "students" },
-        { name: "Fecha de retorno", property: "returnDate", type: "date" }
+        { name: "Libro", property: "book_id", type: "select", collection: "books", required: true },
+        { name: "Estudiante", property: "student_id", type: "select", collection: "students", required: true },
+        { name: "Fecha de retorno", property: "returnDate", type: "date", required: true }
     ]
     static sort = {
         createdAt: "createdAt",
