@@ -20,6 +20,7 @@
         if (recordModel && record)
             record.set(await recordModel.findById($record._id));
         $dialog.close();
+        object = new model(defaultData)
         loading = false;
     };
 </script>
