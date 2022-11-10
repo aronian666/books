@@ -1,98 +1,74 @@
 <script>
+    import { getContext } from "svelte";
+    import Form from "./Form.svelte";
     import Modal from "./Modal.svelte";
-    import Create from "./Create.svelte";
-    import Header from "./Header.svelte";
-    import Table from "./Table.svelte";
-    export let model;
-    export let object;
-    export let table;
-    export let title;
-    export let exact;
-    export let results = [];
-    export let properties;
-    object = new model(object);
+    import Loading from "./Loading.svelte";
+    const record = getContext("record");
+    const model = getContext("recordModel");
+    const results = getContext("results");
+    let loading = false;
+    let object = new model(JSON.parse(JSON.stringify($record)));
     let dialog;
+    const update = async () => {
+        loading = true;
+        const newObject = await model.save(object);
+        record.set(newObject);
+        loading = false;
+        $dialog.close();
+    };
 </script>
 
-<section class="grid" style="gap: 1.5rem">
-    <h1>{object.name}</h1>
-    <div class="details">
-        {#each model.table as { name, property, transform, getStyle }}
-            <span class="key">{name}</span>
-            <span style={getStyle ? getStyle(object[property]) : ""}
-                >{transform
-                    ? transform(object[property])
-                    : object[property]}</span
-            >
+<section class="panel">
+    <h1>{$record.name}</h1>
+    <div>
+        {#each model.table as { name, key, transform, path }}
+            <b>{name}</b>
+            <span>
+                {#if path}
+                    <a href={path($record)}>
+                        {transform ? transform($record[key]) : $record[key]}
+                    </a>
+                {:else}
+                    {transform ? transform($record[key]) : $record[key]}
+                {/if}
+            </span>
         {/each}
     </div>
-    <div class="flex gap">
+    <p class="flex gap">
         <a
             href={`/${model.name.toLowerCase()}s/${object._id}.json`}
             class="button"
-            disabled={results.length > 0}
+            disabled={$results.length > 0}
             on:click={(e) => {
                 if (!confirm("Estas segura de querer eliminar esto?"))
                     e.preventDefault();
             }}
-            style="--color: tomato">Eliminar</a
+            style="--color: tomato"
         >
-        <button style="--color: orange" on:click={(e) => dialog.showModal()}
+            Eliminar
+        </a>
+        <button style="--color: orange" on:click={(e) => $dialog.showModal()}
             >Editar</button
         >
-    </div>
+    </p>
 </section>
-<Header
-    model={table}
-    {title}
-    bind:results
-    object={new table({ [model.name.toLowerCase()]: object })}
-    disabled={model.disabled}
-    disableButton={object.count <= 0}
-    onSubmit={(o) => {
-        model.findById(object._id).then((o) => (object = o));
-    }}
-/>
-<Table
-    table={properties}
-    {exact}
-    model={table}
-    {title}
-    bind:results
-    let:result
-    let:index
->
-    <slot {result} {index} />
-</Table>
 
-<Modal bind:dialog id="edit">
-    {#await model.getResourses()}
-        nothing
-    {:then resourses}
-        <Create
-            {resourses}
-            {model}
-            {object}
-            onSubmit={(o) => {
-                object = o;
-                dialog.close();
-            }}
-        />
-    {/await}
+<Modal id="edit" bind:dialog>
+    {#if loading}
+        <Loading />
+    {:else}
+        <Form bind:object on:submit={update} edit={true} />
+    {/if}
 </Modal>
 
 <style>
-    .details {
+    div {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 0.25rem;
+        gap: 0.5rem;
     }
     section {
-        background-color: white;
-        padding: 2rem;
-        border-radius: 2rem;
-    }
-    .key {
-        font-weight: 600;
+        display: grid;
+        gap: 1rem;
     }
 </style>

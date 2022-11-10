@@ -1,15 +1,17 @@
 <script>
-    import { onMount } from "svelte";
+    import { onMount, setContext } from "svelte";
+    import { writable } from "svelte/store";
     export let id = "create";
-    export let dialog;
+    export let dialog = writable();
+    setContext("dialog", dialog);
     onMount(() => {
-        dialog = document.querySelector(`#${id}`);
+        dialog.set(document.querySelector(`#${id}`));
     });
 </script>
 
 <dialog {id}>
     <slot />
-    <img src="/x.svg" alt="X" on:click={(e) => dialog.close()} />
+    <img src="/x.svg" alt="X" on:click={(e) => $dialog.close()} />
 </dialog>
 
 <style>
@@ -18,6 +20,7 @@
         border-radius: 1rem;
         padding: 1.5rem;
         position: relative;
+        margin: auto;
     }
     dialog::backdrop {
         background-color: #00000040;

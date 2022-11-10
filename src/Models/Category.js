@@ -1,23 +1,26 @@
 import ActiveRecord from "./ActiveRecord"
+import Book from "./Book";
 class Category extends ActiveRecord {
-    constructor({ _id, name = "", createdAt }) {
-        super()
+    constructor({ _id, name = "", createdAt } = {}) {
+        super(Category)
         this._id = _id
         this.name = name;
         this.createdAt = createdAt && new Date(Number(createdAt))
     }
-    static properties = "_id name createdAt"
-    static modifiers = [{ property: "name", name: "Nombre", type: "text", required: true }]
-    static sort = {
-        name: "name",
-        createdAt: "createdAt"
+    get children() {
+        return {
+            model: Book,
+            exact: [{ name: "category._id", value: this._id }],
+            title: "Libros"
+        }
     }
+    static properties = "_id name createdAt"
+    form = [{ key: "name", name: "Nombre" }]
     static table = [
-        { name: "Nombre", property: "name" },
-        { name: "Creacion", property: "createdAt", transform(createdAt) { return createdAt.toLocaleString() } },
+        { sort: "name", name: "Nombre", key: "name", path(object) { return `/categorys/${object._id}` }, className: "name" },
+        { sort: "createdAt", name: "Creacion", key: "createdAt", transform(createdAt) { return createdAt.toLocaleString() } },
     ]
-    static exact = []
-    static disabled = ["category_id"]
     static name = "Category"
+
 }
 export default Category

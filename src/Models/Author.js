@@ -1,25 +1,27 @@
 import ActiveRecord from "./ActiveRecord";
+import Book from "./Book";
 
 export default class Author extends ActiveRecord {
-    constructor({ _id, name = "", createdAt }) {
-        super()
+    constructor({ _id, name = "", createdAt } = {}) {
+        super(Author)
         this._id = _id
         this.name = name;
         this.createdAt = createdAt && new Date(Number(createdAt))
     }
-    static properties = "_id name createdAt"
-    static modifiers = [
-        { property: "name", name: "Nombre", type: "text", required: true }
-    ]
-    static sort = {
-        name: "name",
-        createdAt: "createdAt"
+    get children() {
+        return {
+            model: Book,
+            exact: [{ name: "author._id", value: this._id }],
+            title: "Libros"
+        }
     }
-    static table = [
-        { property: "name", name: "Nombre" },
-        { property: "createdAt", name: "Creacion", transform(createdAt) { return createdAt.toLocaleString() } }
+    static properties = "_id name createdAt"
+    form = [
+        { key: "name", name: "Nombre" }
     ]
-    static disabled = ["author_id"]
-    static exact = []
+    static table = [
+        { sort: "name", key: "name", name: "Nombre", path(object) { return `/authors/${object._id}` }, className: "name" },
+        { sort: "createdAt", key: "createdAt", name: "Creacion", transform(createdAt) { return createdAt.toLocaleString() } }
+    ]
     static name = "Author"
 }

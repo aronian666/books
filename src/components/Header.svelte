@@ -1,46 +1,49 @@
 <script>
-    import Create from "./Create.svelte";
+    import { getContext } from "svelte";
+    import Form from "./Form.svelte";
     import Modal from "./Modal.svelte";
-
-    export let title;
-    export let model;
-    export let results;
-    export let object;
-    export let disabled;
-    export let disableButton = false;
-    export let onSubmit;
+    import Loading from "./Loading.svelte";
+    const model = getContext("model");
+    let results = getContext("results");
+    const title = getContext("title");
+    const record = getContext("record");
+    const recordModel = getContext("recordModel");
+    const defaultData = getContext("default") || {};
+    let object = new model(defaultData);
     let dialog;
+    let loading = false;
+    const create = async () => {
+        loading = true;
+        const data = await model.save(object);
+        $results.push(data);
+        results.set($results);
+        if (recordModel && record)
+            record.set(await recordModel.findById($record._id));
+        $dialog.close();
+        loading = false;
+    };
 </script>
 
-<header>
+<section>
     <h1>{title}</h1>
     <button
-        disabled={disableButton}
         style="--color: var(--blue)"
-        on:click={(e) => dialog.showModal()}>Agregar</button
+        disabled={$record && $record.disabled}
+        on:click={(e) => $dialog.showModal()}
     >
-</header>
-<Modal id="create" bind:dialog>
-    {#await model.getResourses()}
-        nothing
-    {:then resourses}
-        <Create
-            {model}
-            {resourses}
-            {object}
-            {disabled}
-            onSubmit={(object) => {
-                results.push(object);
-                results = results;
-                dialog.close();
-                onSubmit && onSubmit(object);
-            }}
-        />
-    {/await}
-</Modal>
+        Agregar
+    </button>
+    <Modal id="create" bind:dialog>
+        {#if loading}
+            <Loading />
+        {:else}
+            <Form bind:object on:submit={create} />
+        {/if}
+    </Modal>
+</section>
 
 <style>
-    header {
+    section {
         display: flex;
         justify-content: space-between;
         border-bottom: 1px solid var(--gray);

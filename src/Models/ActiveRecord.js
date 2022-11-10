@@ -1,20 +1,23 @@
 export default class ActiveRecord {
+    constructor(model) {
+        this.model = model
+    }
     static async save(object, replace = false) {
         const name = this.name.toLowerCase()
+
         const data = await this.request(`mutation($${name}: ${this.name}Input!) {
             create${this.name}(${name}: $${name}) {
                 ${this.properties}
             }
-        }`, { [name]: replace ? object : this.modifyProperties(object) })
+        }`, { [name]: replace ? object : object.getForm() })
         return new this(data[`create${this.name}`])
     }
-    static modifyProperties(object) {
-        return this.modifiers.reduce((a, b) => {
-            let property = b.property
-            if (/_id/.test(property)) property = property.replace(/_id/, "")
-            a[property] = object[b.property]
-            return a
-        }, { _id: object._id })
+    getForm() {
+        return this.form.reduce((pre, { key }) => {
+            if (typeof this[key] === "object") pre[key] = this[key].getForm()
+            else pre[key] = this[key]
+            return pre
+        }, { _id: this._id })
     }
     static find(filter = {}, exact = []) {
         const body = `query($filter: Filter, $exact: [Exact]){
@@ -51,7 +54,13 @@ export default class ActiveRecord {
         const data = await response.json()
         return data.data
     }
-    static getResourses() {
-        return {}
+    static async recommendations() {
+        const algo = await this.find({ limit: 1000 })
+
+        return Object.values(algo)[0].results
+    }
+    static exact = []
+    get disabled() {
+        return false
     }
 }

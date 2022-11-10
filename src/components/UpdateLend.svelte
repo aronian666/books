@@ -1,33 +1,59 @@
 <script>
+    import { getContext } from "svelte";
     import Lend from "../Models/Lend";
-
+    import Modal from "./Modal.svelte";
+    import Loading from "./Loading.svelte";
     let message = "";
-    export let results = [];
+    let results = getContext("results");
+    const record = getContext("record");
+    const recordModel = getContext("recordModel");
     export let index;
-    export let dialog;
-    export let onSubmit;
+    export let result;
+    let dialog;
+    let loading = false;
     const updateLend = async (e) => {
-        const lend = results[index];
-        const l = await Lend.save(
+        loading = true;
+        const lend = await Lend.save(
             {
-                _id: lend._id,
+                _id: result._id,
                 message,
                 status: "Devuelto",
-                book: lend.book_id,
+                book: { _id: result.book._id },
             },
             true
         );
-        results[index] = l;
-        results = results;
-        onSubmit && onSubmit(l);
-        dialog.close();
+        if (recordModel && record)
+            record.set(await recordModel.findById($record._id));
+        $results[index] = lend;
+        results.set($results);
+        $dialog.close();
+        loading = false;
     };
 </script>
 
-<form on:submit|preventDefault={updateLend}>
-    <fieldset>
-        <label for="message">Observaciones</label>
-        <input type="text" bind:value={message} />
-    </fieldset>
-    <button style="--color: var(--blue)">Actualizar</button>
-</form>
+<td>
+    {#if result.status === "Prestado"}
+        <button
+            style="--color: deeppink"
+            on:click={(e) => {
+                $dialog.showModal();
+            }}
+        >
+            Devolver
+        </button>
+    {:else}
+        {result.message}
+    {/if}
+</td>
+
+<Modal bind:dialog id={`message${index}`}>
+    {#if loading}
+        <Loading />
+    {:else}
+        <form on:submit|preventDefault={updateLend}>
+            <label for="message">Observaciones</label>
+            <input type="text" bind:value={message} />
+            <button style="--color: var(--blue)">Actualizar</button>
+        </form>
+    {/if}
+</Modal>

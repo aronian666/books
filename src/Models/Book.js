@@ -2,44 +2,9 @@ import ActiveRecord from "./ActiveRecord";
 import Author from "./Author";
 import Category from "./Category";
 import Editorial from "./Editorial";
+import Lend from './Lend'
 export default class Book extends ActiveRecord {
-    static properties = "_id name count editorial {_id name} category {_id name} author {_id name} createdAt status"
-    static modifiers = [
-        { property: "name", name: "Nombre", type: "text", required: true },
-        { property: "author_id", name: "Autor", type: "select", collection: "authors", required: true },
-        { property: "category_id", name: "Categoria", type: "select", collection: "categorys", required: true },
-        { property: "count", name: "Cantidad", type: "number", min: 0, required: true },
-        { property: "editorial_id", name: "Editorial", type: "select", collection: "editorials", required: true }
-    ]
-    static sort = {
-        name: "name",
-        author: "author.name",
-        category: "category.name",
-        editorial: "editorial.name",
-        count: "count",
-        status: "status"
-    }
-    static table = [
-        { name: "Nombre", property: "name" },
-        { name: "Autor", property: "author", transform: (author) => author.name },
-        { name: "Categoria", property: "category", transform: (category) => category.name },
-        { name: "Editorial", property: "editorial", transform: (editorial) => editorial.name },
-        { name: "Cantidad", property: "count" },
-        { name: "Creacion", property: "createdAt", transform: (createdAt) => createdAt.toLocaleString() },
-        {
-            name: "Estado", property: "status", getStyle(status) {
-                if (status === "Disponible") return "color: green; font-weight: 600"
-                return "color: tomato; font-weight: 600"
-            }
-        }
-    ]
-    static exact = []
-    static async getResourses() {
-        const [authors, categorys, editorials] = await Promise.all([Author.find({ limit: 1000 }), Category.find({ limit: 1000 }), Editorial.find({ limit: 1000 })])
-        return { authors: authors.authors.results, categorys: categorys.categorys.results, editorials: editorials.editorials.results }
-    }
-    static disabled = ["book_id"]
-    constructor({ _id, name = "", count = 0, editorial = {}, author = {}, category = {}, createdAt, status } = {}) {
+    constructor({ _id, name = "", count = 0, author = {}, category = {}, editorial = {}, createdAt, status } = {}) {
         super(Book);
         this._id = _id
         this.name = name;
@@ -47,15 +12,53 @@ export default class Book extends ActiveRecord {
         this.author = new Author(author);
         this.category = new Category(category);
         this.editorial = new Editorial(editorial)
-        this.category_id = category._id;
-        this.author_id = author._id;
-        this.editorial_id = editorial._id
         this.createdAt = createdAt && new Date(Number(createdAt));
         this.status = status
     }
+
+    static properties = "_id name count editorial {_id name} category {_id name} author {_id name} createdAt status"
+    form = [
+        { name: "Nombre del libro", key: "name" },
+        { name: "Autor", key: "author" },
+        { name: "Categoria", key: "category" },
+        { name: "Editorial", key: "editorial" },
+        { name: "Cantidad", key: "count", type: "number" }
+    ]
+    static table = [
+        { name: "Nombre", key: "name", sort: "name", path(book) { return `/books/${book._id}` }, className: "name" },
+        { name: "Autor", key: "author", sort: "author.name", path(book) { return `/authors/${book.author._id}` }, transform: (author) => author.name },
+        { name: "Categoria", key: "category", sort: "category.name", path(book) { return `/categorys/${book.category._id}` }, transform: (category) => category.name },
+        { name: "Editorial", key: "editorial", sort: "editorial.name", path(book) { return `/editorials/${book.editorial._id}` }, transform: (editorial) => editorial.name },
+        { name: "Cantidad", key: "count", sort: "count" },
+        { name: "Creacion", key: "createdAt", sort: "createdAt", transform: (createdAt) => createdAt.toLocaleString() },
+        { name: "Estado", key: "status", sort: "status", className(o) { return o.statusClass } }
+    ]
     get statusClass() {
-        if (this.status === "Disponible") return "available"
-        return "spent"
+        if (this.status === "Disponible") return "bold available"
+        return "bold spent"
     }
+    get children() {
+        return {
+            model: Lend,
+            exact: [{ name: "book._id", value: this._id }],
+            title: "Prestamos"
+        }
+    }
+    static exact = [
+        {
+            name: "Estado", options: [
+                { name: "Todos", value: "" },
+                { name: "Disponible", value: "Disponible" },
+                { name: "Agotado", value: "Agotado" }
+            ], key: "status", value: ""
+        }
+    ]
     static name = "Book"
+    static async recommendations() {
+        const algo = await this.find({ limit: 1000 }, [{ name: "status", value: "Disponible" }])
+        return Object.values(algo)[0].results
+    }
+    get disabled() {
+        return this.count <= 0
+    }
 }

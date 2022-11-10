@@ -3,10 +3,8 @@ import Book from "./Book"
 import Student from './Student'
 
 export default class Lend extends ActiveRecord {
-    #book_id
-    #student_id
-    static properties = "_id student {name _id} book {_id name} createdAt returnDate status message"
-    constructor({ _id, book = {}, student = {}, returnDate, createdAt, message = "", status }) {
+    static properties = "_id student {name last _id} book {_id name} createdAt returnDate status message"
+    constructor({ _id, book = {}, student = {}, returnDate, createdAt, message = "", status } = {}) {
         super(Lend)
         this._id = _id
         this.book = new Book(book)
@@ -14,50 +12,38 @@ export default class Lend extends ActiveRecord {
         this.returnDate = returnDate && new Date(Number(returnDate))
         this.createdAt = createdAt && new Date(Number(createdAt))
         this.message = message
-        this.student_id = student._id
-        this.book_id = book._id
         this.status = status
     }
-    get book_id() { return this.#book_id }
-    set book_id(book_id) { this.#book_id = book_id }
-    get student_id() { return this.#student_id }
-    set student_id(student_id) { this.#student_id = student_id }
     get difference() {
         const difference = this.returnDate.getTime() - Date.now()
         return Math.round(difference / 86400000)
     }
-    static modifiers = [
-        { name: "Libro", property: "book_id", type: "select", collection: "books", required: true },
-        { name: "Estudiante", property: "student_id", type: "select", collection: "students", required: true },
-        { name: "Fecha de retorno", property: "returnDate", type: "date", required: true }
+    form = [
+        { name: "Libro", key: "book", required: true, extend: false, exact: true },
+        { name: "Estudiante", key: "student", required: true },
+        { name: "Fecha de retorno", key: "returnDate", required: true, type: "date" }
     ]
-    static sort = {
-        createdAt: "createdAt",
-        book: "book.name",
-        student: "student.name",
-        returnDate: "returnDate"
-    }
     static table = [
-        { name: "Libro", property: "book" },
-        { name: "Estudiante", property: "student" },
-        { name: "Inicio", property: "createdAt" },
-        { name: "Devolucion", property: "returnDate" },
-        { name: "Dias faltantes" },
-        { name: "Estado", property: "status" },
-        { name: "Acciones" }
+        { sort: "book.name", name: "Libro", key: "book", path(o) { return `/books/${o.book._id}` }, transform({ name }) { return name }, className: "name" },
+        { sort: "student.name", name: "Estudiante", path(o) { return `/students/${o.student._id}` }, key: "student", transform(student) { return student.fullName } },
+        { sort: "createdAt", name: "Inicio", key: "createdAt", transform(date) { return date.toLocaleString() } },
+        { sort: "returnDate", name: "Devolucion", key: "returnDate", transform(date) { return date.toLocaleString() } },
+        { name: "Dias faltantes", key: "difference" },
+        { sort: "status", name: "Estado", key: "status", className(o) { return o.statusClass } },
     ]
-    static async getResourses() {
-        let [books, students] = await Promise.all([Book.find({ limit: 1000 }, [{ name: "status", value: "Disponible" }]), Student.find({ limit: 1000 })])
-        students = students.students.results.map(s => {
-            s.name = `${s.name} ${s.last}`
-            return s
-        })
-        return { books: books.books.results, students }
-    }
     get statusClass() {
-        if (this.status === "Prestado") return "lend"
-        if (this.status === "Devuelto") return "back"
+        if (this.status === "Prestado") return "bold lend"
+        if (this.status === "Devuelto") return "bold back"
         return ""
     }
+    static exact = [
+        {
+            name: "Estado", options: [
+                { name: "Todos", value: "" },
+                { name: "Devuelto", value: "Devuelto" },
+                { name: "Prestado", value: "Prestado" }
+            ], key: "status", value: ""
+        }
+    ]
     static name = "Lend"
 }

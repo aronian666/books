@@ -1,17 +1,16 @@
 <script>
+    import { getContext } from "svelte";
     import Loading from "./Loading.svelte";
-
-    export let model;
-    export let results = [];
-    export let title;
+    const model = getContext("model");
+    let results = getContext("results");
     export let exact = [];
-    export let table;
+    let title = getContext("title");
     let count = 0;
     let loading = true;
 
     let filter = {
         search: "",
-        sort: Object.values(model.sort)[0],
+        sort: model.table[0].sort,
         page: 0,
         asc: 1,
     };
@@ -24,80 +23,126 @@
             }, timeout);
         };
     }
-    const assignSearch = debounce((filter) => {
+    const assignSearch = debounce((filter, anotherExact) => {
         loading = true;
-        model.find(filter, exact).then((data) => {
+        const raton = anotherExact
+            .map((option) => ({
+                name: option.key,
+                value: option.value,
+            }))
+            .filter((v) => v.value);
+        model.find(filter, [...exact, ...raton]).then((data) => {
             data = Object.values(data)[0];
             count = data.count;
-            results = data.results.map((result) => new model(result));
+            results.set(data.results.map((result) => new model(result)));
             loading = false;
         });
     });
-    $: assignSearch(filter);
+    $: assignSearch(filter, model.exact);
 </script>
 
 <section class="main">
     <section class="flex space-between">
-        <fieldset>
-            <input
-                type="search"
-                name="search"
-                id="search"
-                bind:value={filter.search}
-                placeholder="Buscar"
-            />
-        </fieldset>
+        <div class="flex gap">
+            <div class="fielset">
+                <label for="search"> Buscar </label>
+                <input
+                    type="search"
+                    name="search"
+                    id="search"
+                    bind:value={filter.search}
+                    placeholder="Buscar"
+                />
+            </div>
+            {#each model.exact as algo}
+                <div class="fielset">
+                    <label for={algo.name}> {algo.name} </label>
+                    <select
+                        name={algo.name}
+                        id={algo.name}
+                        bind:value={algo.value}
+                    >
+                        {#each algo.options as option}
+                            <option value={option.value}>{option.name}</option>
+                        {/each}
+                    </select>
+                </div>
+            {/each}
+        </div>
         <div class="flex gap align-center">
             <span class="count">{count}</span>
             <b>{title}</b>
         </div>
     </section>
-    {#if loading}
-        <div class="grid place-content">
-            <Loading />
-        </div>
-    {:else}
-        <table>
-            <thead>
-                <tr>
-                    {#each table || model.table as { name, property }}
-                        <th
-                            class={model.sort[property] === filter.sort
-                                ? filter.asc === 1
-                                    ? "asc"
-                                    : "desc"
-                                : ""}
-                            on:click={(e) => {
-                                if (filter.sort === model.sort[property])
-                                    return (filter.asc *= -1);
-                                if (!model.sort[property]) return;
-                                filter.sort = model.sort[property];
-                                filter.asc = 1;
-                            }}>{name}</th
-                        >
-                    {/each}
-                </tr>
-            </thead>
-            <tbody>
-                {#each results as result, index}
+
+    <table>
+        <thead>
+            <tr>
+                {#each model.table as { sort, name }}
+                    <th
+                        class={sort === filter.sort
+                            ? filter.asc === 1
+                                ? "asc"
+                                : "desc"
+                            : ""}
+                        on:click={(e) => {
+                            if (filter.sort === sort) return (filter.asc *= -1);
+                            filter.sort = sort;
+                            filter.asc = 1;
+                        }}>{name}</th
+                    >
+                {/each}
+            </tr>
+        </thead>
+        <tbody>
+            {#if loading}
+                <Loading />
+            {:else}
+                {#each $results as result, index}
                     <tr>
+                        {#each model.table as { key, transform, path, className }}
+                            <td>
+                                {#if path}
+                                    <a
+                                        href={path(result)}
+                                        class={typeof className === "function"
+                                            ? className(result)
+                                            : className}
+                                    >
+                                        {transform
+                                            ? transform(result[key])
+                                            : result[key]}
+                                    </a>
+                                {:else}
+                                    <span
+                                        class={typeof className === "function"
+                                            ? className(result)
+                                            : className}
+                                    >
+                                        {transform
+                                            ? transform(result[key])
+                                            : result[key]}
+                                    </span>
+                                {/if}
+                            </td>
+                        {/each}
                         <slot {result} {index} />
                     </tr>
                 {/each}
-            </tbody>
-        </table>
-        <section class="flex gap">
-            {#each Array(((count / 10) ^ 0) + 1).fill(0) as a, i}
-                <button
-                    class="page"
-                    class:active={i === filter.page}
-                    on:click={(e) => (filter.page = i)}
-                >
-                    {i + 1}
-                </button>
-            {/each}
-        </section>
-    {/if}
+            {/if}
+        </tbody>
+    </table>
+    <section class="flex gap">
+        {#each Array(((count / 10) ^ 0) + 1).fill(0) as a, i}
+            <button
+                class="page"
+                class:active={i === filter.page}
+                on:click={(e) => (filter.page = i)}
+            >
+                {i + 1}
+            </button>
+        {/each}
+    </section>
 </section>
 
 <style>
