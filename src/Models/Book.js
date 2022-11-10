@@ -3,8 +3,9 @@ import Author from "./Author";
 import Category from "./Category";
 import Editorial from "./Editorial";
 import Lend from './Lend'
+
 export default class Book extends ActiveRecord {
-    constructor({ _id, name = "", count = 0, author = {}, category = {}, editorial = {}, createdAt, status } = {}) {
+    constructor({ _id, name = "", count = 0, author = {}, category = {}, position = 1, editorial = {}, createdAt, status } = {}) {
         super(Book);
         this._id = _id
         this.name = name;
@@ -14,14 +15,16 @@ export default class Book extends ActiveRecord {
         this.editorial = new Editorial(editorial)
         this.createdAt = createdAt && new Date(Number(createdAt));
         this.status = status
+        this.position = position
     }
 
-    static properties = "_id name count editorial {_id name} category {_id name} author {_id name} createdAt status"
+    static properties = "_id name count editorial {_id name} category {_id name} author {_id name} createdAt status position"
     form = [
         { name: "Nombre del libro", key: "name" },
         { name: "Autor", key: "author" },
         { name: "Categoria", key: "category" },
         { name: "Editorial", key: "editorial" },
+        { name: "Ubicacion", key: "position", type: "number" },
         { name: "Cantidad", key: "count", type: "number" }
     ]
     static table = [
@@ -30,6 +33,7 @@ export default class Book extends ActiveRecord {
         { name: "Categoria", key: "category", sort: "category.name", path(book) { return `/categorys/${book.category._id}` }, transform: (category) => category.name },
         { name: "Editorial", key: "editorial", sort: "editorial.name", path(book) { return `/editorials/${book.editorial._id}` }, transform: (editorial) => editorial.name },
         { name: "Cantidad", key: "count", sort: "count" },
+        { name: "Ubicacion", key: "position", sort: "position" },
         { name: "Creacion", key: "createdAt", sort: "createdAt", transform: (createdAt) => createdAt.toLocaleString() },
         { name: "Estado", key: "status", sort: "status", className(o) { return o.statusClass } }
     ]
