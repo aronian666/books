@@ -5,18 +5,23 @@
     import Loading from "../components/Loading.svelte";
     import Modal from "../components/Modal.svelte";
     import Book from "../Models/Book";
+    import Editorial from "../Models/Editorial";
 
     let camera = false;
     let code = "";
     let dialog;
     let loading = false;
+    let editorials = [];
     let book;
     const saveBook = async (isbn) => {
+        Editorial.find({ limit: 100 }).then((data) => {
+            editorials = data.editorials.results;
+        });
         loading = true;
         camera = false;
         $dialog.showModal();
         const response = await fetch(
-            `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`
+            `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&fields=items(volumeInfo/title,volumeInfo/imageLinks,volumeInfo/authors,volumeInfo/publisher)`
         );
         const data = await response.json();
         const object = data.items && data.items[0];
@@ -60,11 +65,27 @@
         {:else if book}
             <section class="details">
                 <h2>Informacion del libro</h2>
+                <picture>
+                    <img src={book.image} alt={book.name} />
+                </picture>
                 <div>
                     <span>Nombre</span>
                     <p>{book.name}</p>
                     <span>Autor</span>
                     <p>{book.author.name}</p>
+                    <span>Editorial</span>
+                    <input
+                        type="text"
+                        name="book[editorial]"
+                        id="book[editorial]"
+                        list="editorials"
+                        bind:value={book.editorial.name}
+                    />
+                    <datalist id="editorials">
+                        {#each editorials as { name, _id }}
+                            <option value={name} />
+                        {/each}
+                    </datalist>
                 </div>
                 <Button
                     on:click={(e) => {
@@ -92,5 +113,17 @@
     .details {
         display: grid;
         gap: 0.5rem;
+    }
+    div {
+        display: grid;
+        gap: 0.5rem;
+    }
+    picture {
+        display: flex;
+        justify-content: center;
+    }
+    img {
+        width: 100px;
+        aspect-ratio: 2/3;
     }
 </style>

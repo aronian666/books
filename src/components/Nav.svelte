@@ -2,8 +2,8 @@
     import Button from "./Button.svelte";
 
     const routes = [
-        { name: "Buscar", src: "search" },
-        { name: "Agregar libro", src: "books" },
+        { name: "Buscar", src: "", icon: "search" },
+        { name: "Agregar libro", src: "books", icon: "books" },
     ];
     let hidden = true;
 </script>
@@ -12,7 +12,7 @@
     <ul class:hidden>
         {#each routes as { name, src, icon }}
             <a href={`/${src}`}>
-                <img src={`/${src}.svg`} alt={name} />
+                <img src={`/${icon}.svg`} alt={name} />
                 {name}
             </a>
         {/each}
