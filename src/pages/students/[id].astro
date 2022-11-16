@@ -1,7 +1,6 @@
 ---
 import Student from "../../Models/Student";
 import Layout from "../../layouts/Layout.astro";
-import Nav from "../../components/Nav.astro";
 import StudentComponent from "../../components/Student.svelte";
 const { id } = Astro.params;
 const student = (await Student.findById(id)) as Student;
