@@ -1,4 +1,5 @@
 <script>
+    import Button from "./Button.svelte";
     import Fielsets from "./Fielsets.svelte";
     export let object;
     export let edit;
@@ -6,7 +7,14 @@
 
 <form {...$$restProps} on:submit|preventDefault>
     <Fielsets {object} {edit} />
-    <button style="--color: var(--blue)">
+    <Button style="--color: var(--blue)">
         {object._id ? "Editar" : "Crear"}
-    </button>
+    </Button>
 </form>
+
+<style>
+    form {
+        display: grid;
+        gap: 0.5rem;
+    }
+</style>

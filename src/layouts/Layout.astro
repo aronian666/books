@@ -1,11 +1,9 @@
 ---
 export interface Props {
 	title: string;
-	className?: string;
 }
 
-const { title, className } = Astro.props;
-import Nav from "../components/Nav.astro";
+const { title } = Astro.props;
 ---
 
 <!DOCTYPE html>
@@ -18,13 +16,7 @@ import Nav from "../components/Nav.astro";
 		<link rel="stylesheet" href="/app.css" />
 		<title>{title}</title>
 	</head>
-	<body class="flex">
-		<Nav />
-		<main
-			style="padding: 2rem; flex: 1 1 auto; gap: 2rem"
-			class="flex column"
-		>
-			<slot />
-		</main>
+	<body>
+		<slot />
 	</body>
 </html>

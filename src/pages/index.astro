@@ -1,17 +1,8 @@
 ---
+import Nav from "../components/Nav.svelte";
 import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout title="Libros">
-	<h1>Si tienes algun error me avisas xdxd</h1>
-	<p>
-		Algunas cosas no tienen una animacion de loading, solo tienes que
-		esperar.
-	</p>
+	<Nav client:visible />
 </Layout>
-
-<style>
-	img {
-		width: 500px;
-	}
-</style>

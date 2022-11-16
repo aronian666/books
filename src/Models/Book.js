@@ -5,7 +5,7 @@ import Editorial from "./Editorial";
 import Lend from './Lend'
 
 export default class Book extends ActiveRecord {
-    constructor({ _id, name = "", count = 0, author = {}, category = {}, position = 1, editorial = {}, createdAt, status } = {}) {
+    constructor({ _id, name = "", count = 0, image, author = {}, category = {}, position = 1, editorial = {}, createdAt, status, isbn } = {}) {
         super(Book);
         this._id = _id
         this.name = name;
@@ -16,9 +16,10 @@ export default class Book extends ActiveRecord {
         this.createdAt = createdAt && new Date(Number(createdAt));
         this.status = status
         this.position = position
+        this.isbn = isbn
+        this.image = image
     }
-
-    static properties = "_id name count editorial {_id name} category {_id name} author {_id name} createdAt status position"
+    static properties = "_id name count image createdAt status position editorial {_id name} category {_id name} author {_id name}"
     form = [
         { name: "Nombre del libro", key: "name" },
         { name: "Autor", key: "author" },
@@ -64,5 +65,17 @@ export default class Book extends ActiveRecord {
     }
     get disabled() {
         return this.count <= 0
+    }
+    static async saveByIsbn(book) {
+        const data = await this.request(`
+            mutation($book: IsbnInput!) {
+                createByIsbn(book: $book) {
+                    _id
+                    name
+                    count
+                }
+            }
+        `, { book })
+        return new this(Object.values(data)[0])
     }
 }
