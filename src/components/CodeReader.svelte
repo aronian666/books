@@ -16,13 +16,14 @@
         await videoEl.play();
 
         const barcodeDetector = new BarcodeDetector({ formats: ["ean_13"] });
-        window.setInterval(async () => {
+        const interval = window.setInterval(async () => {
             const barcodes = await barcodeDetector.detect(videoEl);
             if (barcodes.length <= 0) return;
-
             result = barcodes.map((barcode) => barcode.rawValue).join("");
-            //alert(barcodes.map((barcode) => barcode.rawValue));
         }, 1000);
+        return () => {
+            clearInterval(interval);
+        };
     });
 </script>
 
