@@ -19,6 +19,7 @@
         const interval = window.setInterval(async () => {
             const barcodes = await barcodeDetector.detect(videoEl);
             if (barcodes.length <= 0) return;
+            if (result.length) return;
             result = barcodes.map((barcode) => barcode.rawValue).join("");
         }, 1000);
         return () => {
