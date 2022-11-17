@@ -52,6 +52,7 @@
         loading = false;
         results.push(book);
         results = results;
+        object = new Book();
         $dialog.close();
     };
 </script>
