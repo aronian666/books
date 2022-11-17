@@ -63,4 +63,5 @@ export default class ActiveRecord {
     get disabled() {
         return false
     }
+
 }

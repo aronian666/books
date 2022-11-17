@@ -26,10 +26,15 @@ export default class Lend extends ActiveRecord {
     static table = [
         { sort: "book.name", name: "Libro", key: "book", path(o) { return `/books/${o.book._id}` }, transform({ name }) { return name }, className: "name" },
         { sort: "student.name", name: "Estudiante", path(o) { return `/students/${o.student._id}` }, key: "student", transform(student) { return student.fullName } },
-        { sort: "createdAt", name: "Inicio", key: "createdAt", transform(date) { return date.toLocaleString() } },
-        { sort: "returnDate", name: "Devolucion", key: "returnDate", transform(date) { return date.toLocaleString() } },
-        { name: "Dias faltantes", key: "difference" },
-        { sort: "status", name: "Estado", key: "status", className(o) { return o.statusClass } },
+        { name: "Dias faltantes", key: "difference", transform(day) { return `${day} dias` } },
+    ]
+    static studentTable = [
+        { sort: "book.name", name: "Libro", path(o) { return `/books/${o.book._id}` }, key: "book", transform(book) { return book.name } },
+        { name: "Restante", key: "difference", transform(day) { return `${day} dias` } },
+    ]
+    static shortTable = [
+        { sort: "student.name", name: "Estudiante", path(o) { return `/students/${o.student._id}` }, key: "student", transform(student) { return student.fullName } },
+        { name: "Restante", key: "difference", transform(day) { return `${day} dias` } },
     ]
     get statusClass() {
         if (this.status === "Prestado") return "bold lend"
@@ -42,7 +47,7 @@ export default class Lend extends ActiveRecord {
                 { name: "Todos", value: "" },
                 { name: "Devuelto", value: "Devuelto" },
                 { name: "Prestado", value: "Prestado" }
-            ], key: "status", value: ""
+            ], key: "status", value: "Prestado"
         }
     ]
     static name = "Lend"

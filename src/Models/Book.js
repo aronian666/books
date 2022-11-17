@@ -38,6 +38,26 @@ export default class Book extends ActiveRecord {
         { name: "Creacion", key: "createdAt", sort: "createdAt", transform: (createdAt) => createdAt.toLocaleString() },
         { name: "Estado", key: "status", sort: "status", className(o) { return o.statusClass } }
     ]
+    static async export() {
+        const { books } = await this.find({ limit: 10000 })
+        const results = books.results.map(i => new this(i))
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += this.table.map(i => i.name).join(",") + "\r\n";
+        results.forEach((rowArray) => {
+            let row = this.table.map(({ transform, key }) => {
+                if (transform) return `"${transform(rowArray[key])}"`
+                return `"${rowArray[key]}"`
+            })
+            csvContent += row.join(",") + "\r\n";
+        });
+        var encodedUri = encodeURI(csvContent);
+        var link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", this.name + "s.csv");
+        document.body.appendChild(link); // Required for FF
+        link.click(); // This will download the data file named "my_data.csv".
+        link.remove()
+    }
     get statusClass() {
         if (this.status === "Disponible") return "bold available"
         return "bold spent"

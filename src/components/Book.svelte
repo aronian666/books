@@ -1,41 +1,70 @@
 <script>
-    import Button from "./Button.svelte";
     import Modal from "./Modal.svelte";
     import Loading from "./Loading.svelte";
     import Form from "./Form.svelte";
     import Book from "../Models/Book";
+    import Table from "./Table.svelte";
+    import Lend from "../Models/Lend";
+    import UpdateLend from "./UpdateLend.svelte";
     export let object;
     object = new Book(object);
-
-    let dialog;
+    let lend = new Lend({ book: object });
+    lend.form[0].edit = true;
+    let lends = [];
+    let editDialog;
+    let createDialog;
     let loading = false;
     const update = async () => {
         loading = true;
         const newObject = await Book.save(object);
         object = newObject;
         loading = false;
-        $dialog.close();
+        $editDialog.close();
+    };
+    const createLend = async () => {
+        const l = await Lend.save(lend);
+        lends.push(l);
+        lends = lends;
+        $createDialog.close();
+        lend = new Lend({ book: object });
+        lend.form[0].edit = true;
     };
 </script>
 
 <main>
-    <h1>{object.name}</h1>
-    <div>
-        <img src={object.image} alt={object.name} />
-        <section class="details">
-            <span>Autor</span>
-            <p>{object.author.name}</p>
-            <span>Editorial</span>
-            <p>{object.editorial.name}</p>
-            <span>Area</span>
-            <p>{object.category.name}</p>
-            <span>Ubicacion</span>
-            <p>{object.position}</p>
-            <span>Cantidad</span>
-            <p>{object.count}</p>
-        </section>
-    </div>
-    <section class="buttons">
+    <section>
+        <h1>{object.name}</h1>
+    </section>
+    <section class="grid gap auto-fit">
+        <img
+            src={object.image ||
+                "https://i0.wp.com/css-tricks.com/wp-content/uploads/2017/08/card-skeleton@2x.png?w=300&ssl=1"}
+            alt={object.name}
+        />
+        <div class="grid gap">
+            <div>
+                <span>Autor</span>
+                <p>{object.author.name}</p>
+            </div>
+            <div>
+                <span>Editorial</span>
+                <p>{object.editorial.name}</p>
+            </div>
+            <div>
+                <span>Area</span>
+                <p>{object.category.name}</p>
+            </div>
+            <div>
+                <span>Ubicacion</span>
+                <p>{object.position}</p>
+            </div>
+            <div>
+                <span>Cantidad</span>
+                <p>{object.count}</p>
+            </div>
+        </div>
+    </section>
+    <section class="flex gap">
         <a
             href={`/books/${object._id}.json`}
             on:click={(e) => {
@@ -43,42 +72,61 @@
                     e.preventDefault();
             }}
             class="button"
-            style="--color: tomato">Eliminar</a
+            style="--color: tomato; color: white">Eliminar</a
         >
-        <Button on:click={(e) => $dialog.showModal()}>Editar</Button>
+        <button on:click={(e) => $editDialog.showModal()}>Editar</button>
+    </section>
+    <div class="divisor" />
+    <section class="grid gap">
+        <div class="flex gap space-between align-items-center">
+            <h2>Prestamos</h2>
+            <button on:click={(e) => $createDialog.showModal()}>Agregar</button>
+        </div>
+        <Table
+            model={Lend}
+            exact={[{ name: "book._id", value: object._id }]}
+            title="Prestamos"
+            sort="book.name"
+            table="shortTable"
+            bind:results={lends}
+            let:index
+            let:result
+        >
+            <UpdateLend
+                bind:results={lends}
+                {index}
+                {result}
+                onUpdate={() => object.count++}
+            />
+        </Table>
     </section>
 </main>
 
-<Modal id="edit" bind:dialog>
+<Modal id="edit" bind:dialog={editDialog}>
     {#if loading}
         <Loading />
     {:else}
-        <Form bind:object on:submit={update} edit={true} />
+        <Form bind:object on:submit={update} />
+    {/if}
+</Modal>
+<Modal id="create" bind:dialog={createDialog}>
+    {#if loading}
+        <Loading />
+    {:else}
+        <Form bind:object={lend} on:submit={createLend} />
     {/if}
 </Modal>
 
 <style>
-    .details {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-    }
     span {
         font-weight: 600;
     }
     p {
-        color: var(--secondary);
-    }
-    div {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
+        color: gray;
     }
     img {
         width: 200px;
         aspect-ratio: 2/3;
-    }
-    .buttons {
-        display: flex;
-        gap: 1rem;
+        background-color: gray;
     }
 </style>

@@ -32,21 +32,40 @@
         loading = true;
         camera = false;
         $dialog.showModal();
-        const response = await fetch(
-            `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&fields=items(volumeInfo/title,volumeInfo/imageLinks,volumeInfo/authors,volumeInfo/publisher)`
-        );
-        const data = await response.json();
-        const object = data.items && data.items[0];
-        if (object) {
-            book.name = object.volumeInfo.title;
-            if (object.volumeInfo.authors)
-                book.author.name = object.volumeInfo.authors[0];
-            book.isbn = code;
-            book.image = object.volumeInfo.imageLinks?.thumbnail;
-            if (object.volumeInfo.publisher)
-                book.editorial.name = object.volumeInfo.publisher;
-        }
+        let responses = [
+            fetch(
+                `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&fields=items(volumeInfo/title,volumeInfo/imageLinks,volumeInfo/authors,volumeInfo/publisher)`
+            ),
+            fetch(`https://openlibrary.org/isbn/${isbn}.json`),
+        ];
+        responses = await Promise.all(responses);
+        let google = await responses[0].json();
+        google = google.items && google.items[0];
+        let open;
+        if (responses[1].ok) open = await responses[1].json();
 
+        if (google) {
+            book.name = google.volumeInfo.title;
+            if (google.volumeInfo.authors)
+                book.author.name = google.volumeInfo.authors[0];
+            book.isbn = code;
+            book.image = google.volumeInfo.imageLinks?.thumbnail;
+            if (google.volumeInfo.publisher)
+                book.editorial.name = google.volumeInfo.publisher;
+        } else if (open) {
+            book.name = open.title;
+            if (open.authors?.length) {
+                fetch(
+                    "https://openlibrary.org" + open.authors[0].key + ".json"
+                ).then(async (response) => {
+                    const data = await response.json();
+                    book.author.name = data.name;
+                });
+            }
+            book.isbn = code;
+            if (open.publishers?.length)
+                book.editorial.name = open.publishers[0];
+        }
         loading = false;
         code = "";
     };
@@ -63,7 +82,17 @@
     {:else}
         <Button on:click={(e) => (camera = true)}>Abrir camara</Button>
     {/if}
-    <Modal bind:dialog>
+    <Modal
+        bind:dialog
+        onClose={() => {
+            book.name = null;
+            book.author.name = "Anonimo";
+            book.count = 1;
+            book.editorial.name = "Sin Editorial";
+            book.image = null;
+            $dialog.close();
+        }}
+    >
         {#if loading}
             <Loading />
         {:else if book.name}
@@ -116,6 +145,7 @@
                             book.name = null;
                             book.author = { name: "Anonimo" };
                             book.count = 1;
+                            book.image = null;
                             book.editorial.name = "Sin Editorial";
                         });
                     }}>Confimar</Button

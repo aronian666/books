@@ -1,16 +1,16 @@
 <script>
-    import { getContext } from "svelte";
     import Loading from "./Loading.svelte";
-    const model = getContext("model");
-    let results = getContext("results");
+    export let model;
     export let exact = [];
-    let title = getContext("title");
+
+    export let sort;
+    export let table;
+    export let results = [];
     let count = 0;
     let loading = true;
-
     let filter = {
         search: "",
-        sort: model.table[0].sort,
+        sort: sort || "name",
         page: 0,
         asc: 1,
     };
@@ -34,51 +34,42 @@
         model.find(filter, [...exact, ...raton]).then((data) => {
             data = Object.values(data)[0];
             count = data.count;
-            results.set(data.results.map((result) => new model(result)));
+            results = data.results.map((result) => new model(result));
             loading = false;
         });
     });
     $: assignSearch(filter, model.exact);
 </script>
 
-<section class="main">
-    <section class="flex space-between">
-        <div class="flex gap">
-            <div class="fielset">
-                <label for="search"> Buscar </label>
-                <input
-                    type="search"
-                    name="search"
-                    id="search"
-                    bind:value={filter.search}
-                    placeholder="Buscar"
-                />
+<section class="flex space-between">
+    <div class="flex gap wrap">
+        <div class="grid">
+            <label for="search"> Buscar </label>
+            <input
+                type="search"
+                name="search"
+                id="search"
+                bind:value={filter.search}
+                placeholder="Buscar"
+            />
+        </div>
+        {#each model.exact as algo}
+            <div class="grid">
+                <label for={algo.name}> {algo.name} </label>
+                <select name={algo.name} id={algo.name} bind:value={algo.value}>
+                    {#each algo.options as option}
+                        <option value={option.value}>{option.name}</option>
+                    {/each}
+                </select>
             </div>
-            {#each model.exact as algo}
-                <div class="fielset">
-                    <label for={algo.name}> {algo.name} </label>
-                    <select
-                        name={algo.name}
-                        id={algo.name}
-                        bind:value={algo.value}
-                    >
-                        {#each algo.options as option}
-                            <option value={option.value}>{option.name}</option>
-                        {/each}
-                    </select>
-                </div>
-            {/each}
-        </div>
-        <div class="flex gap align-center">
-            <span class="count">{count}</span>
-            <b>{title}</b>
-        </div>
-    </section>
-
+        {/each}
+    </div>
+</section>
+{#if results.length}
     <table>
         <thead>
             <tr>
-                {#each model.table as { sort, name }}
+                {#each model[table] as { sort, name }}
                     <th
                         class={sort === filter.sort
                             ? filter.asc === 1
@@ -98,9 +89,9 @@
             {#if loading}
                 <Loading />
             {:else}
-                {#each $results as result, index}
+                {#each results as result, index}
                     <tr>
-                        {#each model.table as { key, transform, path, className }}
+                        {#each model[table] as { key, transform, path, className }}
                             <td>
                                 {#if path}
                                     <a
@@ -143,19 +134,16 @@
             </button>
         {/each}
     </section>
-</section>
+{:else}
+    <p>No hay registros</p>
+{/if}
 
 <style>
     .main {
         padding: 2rem;
-        background-color: white;
         border-radius: 2rem;
         display: grid;
         gap: 1rem;
-    }
-    .main > *:first-child {
-        padding-bottom: 1rem;
-        border-bottom: 1px solid var(--gray);
     }
     .page {
         background-color: white;
@@ -168,6 +156,14 @@
     }
     .count {
         color: rgba(47, 47, 47, 0.776);
+    }
+    a {
+        color: black;
+        text-decoration: none;
+    }
+    a:hover {
+        font-weight: 600;
+        text-decoration: underline;
     }
     th {
         cursor: pointer;
@@ -186,5 +182,8 @@
     th.asc::after,
     th.desc::after {
         margin-left: 0.5rem;
+    }
+    label {
+        font-weight: 600;
     }
 </style>

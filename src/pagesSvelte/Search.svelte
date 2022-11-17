@@ -1,5 +1,4 @@
 <script>
-    import Button from "../components/Button.svelte";
     import Input from "../components/Input.svelte";
     import Modal from "../components/Modal.svelte";
     import Book from "../Models/Book";
@@ -30,7 +29,7 @@
         Book.find(filter).then((data) => {
             data = Object.values(data)[0];
             count = data.count;
-            results = data.results;
+            results = data.results.map((i) => new Book(i));
             loading = false;
         });
     });
@@ -50,9 +49,13 @@
 <main>
     <header>
         <h1>Buscar</h1>
-        <Button on:click={(e) => $dialog.showModal()}
-            >Agregar nuevo libro</Button
-        >
+        <div class="flex" style="gap: .5rem">
+            <button
+                on:click={(e) => Book.export()}
+                style="--color: #10793F; color:white">Descargar</button
+            >
+            <button on:click={(e) => $dialog.showModal()}>Agregar</button>
+        </div>
     </header>
     <Input
         type="search"
@@ -63,7 +66,11 @@
     <section class="books">
         {#each results as book}
             <div class="book">
-                <img src={book.image} alt={book.name} />
+                <img
+                    src={book.image ||
+                        "https://i0.wp.com/css-tricks.com/wp-content/uploads/2017/08/card-skeleton@2x.png?w=300&ssl=1"}
+                    alt={book.name}
+                />
                 <a href={`/books/${book._id}`} title={book.name}>
                     {book.name}
                 </a>
@@ -103,18 +110,10 @@
         display: flex;
         gap: 0.5rem;
     }
-    button {
-        width: 2rem;
-        aspect-ratio: 1;
-        background-color: white;
-        color: black;
-        border: none;
-        border-radius: 50%;
-        cursor: pointer;
-    }
     img {
         width: 100%;
         aspect-ratio: 2/3;
+        border-radius: 0.5rem;
     }
     header {
         display: flex;
@@ -126,14 +125,14 @@
         gap: 1.5rem;
     }
     .book {
-        border: 2px solid var(--gray);
         padding: 0.5rem;
         display: grid;
         border-radius: 1rem;
         gap: 0.5rem;
+        border: 1px solid #00000020;
     }
     a {
-        color: white;
+        color: black;
         text-decoration: none;
         font-weight: 600;
         text-overflow: ellipsis;
@@ -144,6 +143,6 @@
         text-decoration: underline;
     }
     span {
-        color: var(--secondary);
+        color: gray;
     }
 </style>

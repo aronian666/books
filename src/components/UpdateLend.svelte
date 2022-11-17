@@ -1,14 +1,12 @@
 <script>
-    import { getContext } from "svelte";
     import Lend from "../Models/Lend";
     import Modal from "./Modal.svelte";
     import Loading from "./Loading.svelte";
     let message = "";
-    let results = getContext("results");
-    const record = getContext("record");
-    const recordModel = getContext("recordModel");
+    export let results = [];
     export let index;
     export let result;
+    export let onUpdate;
     let dialog;
     let loading = false;
     const updateLend = async (e) => {
@@ -22,10 +20,9 @@
             },
             true
         );
-        if (recordModel && record)
-            record.set(await recordModel.findById($record._id));
-        $results[index] = lend;
-        results.set($results);
+        results[index] = lend;
+        results = results;
+        onUpdate && onUpdate();
         $dialog.close();
         loading = false;
     };
@@ -34,12 +31,12 @@
 <td>
     {#if result.status === "Prestado"}
         <button
-            style="--color: deeppink"
+            style="--color: var(--yellow); padding: .4rem .8rem"
             on:click={(e) => {
                 $dialog.showModal();
             }}
         >
-            Devolver
+            Detalles
         </button>
     {:else}
         {result.message}
@@ -50,10 +47,39 @@
     {#if loading}
         <Loading />
     {:else}
-        <form on:submit|preventDefault={updateLend}>
-            <label for="message">Observaciones</label>
-            <input type="text" bind:value={message} />
-            <button style="--color: var(--blue)">Actualizar</button>
+        <form class="grid gap" on:submit|preventDefault={updateLend}>
+            <div>
+                <span>Estudiante</span>
+                <p>{result.student.fullName}</p>
+            </div>
+            <div>
+                <span>Fecha de prestamo</span>
+                <p>{result.createdAt.toDateString()}</p>
+            </div>
+            <div>
+                <span>Fecha de retorno</span>
+                <p>{result.returnDate.toDateString()}</p>
+            </div>
+            <div>
+                <span>Restante</span>
+                <p>{result.difference} dias</p>
+            </div>
+            <div class="grid">
+                <label for="message">Observaciones</label>
+                <input type="text" bind:value={message} />
+            </div>
+
+            <button style="--color: var(--blue); color:white">Entregar</button>
         </form>
     {/if}
 </Modal>
+
+<style>
+    span,
+    label {
+        font-weight: 600;
+    }
+    p {
+        color: gray;
+    }
+</style>

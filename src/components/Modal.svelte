@@ -3,6 +3,7 @@
     import { writable } from "svelte/store";
     export let id = "create";
     export let dialog = writable();
+    export let onClose;
     setContext("dialog", dialog);
     onMount(() => {
         dialog.set(document.querySelector(`#${id}`));
@@ -11,19 +12,23 @@
 
 <dialog {id}>
     <slot />
-    <img src="/x.svg" alt="X" on:click={(e) => $dialog.close()} />
+    <img
+        src="/x.svg"
+        alt="X"
+        on:click={(e) => (onClose ? onClose() : $dialog.close())}
+    />
 </dialog>
 
 <style>
     dialog {
         border: none;
         border-radius: 1rem;
-        padding: 1.5rem;
+        padding: 1rem;
         position: relative;
         margin: auto;
     }
     dialog::backdrop {
-        background-color: #00000040;
+        background-color: #0000006a;
     }
     img {
         position: absolute;

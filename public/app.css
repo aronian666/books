@@ -2,7 +2,7 @@
 
 :root {
     --blue: #1B59F8;
-    --gray: #323f4a;
+    --gray: #dddddd;
     --yellow: #ffdf00;
     --secondary: #a0b3c6;
 }
@@ -15,33 +15,91 @@
 }
 
 main {
-    padding: 3rem 1rem 1rem 1rem;
+    max-width: 90%;
+    margin: auto;
     display: grid;
     gap: 1rem;
+    padding: 3rem 0;
+
 }
 
-body {
-    background-color: #0F1117;
-    color: white;
-}
-
-input {
+input:not([type="radio"]),
+select {
     padding: 0.75rem 1rem;
     border-radius: 1rem;
     box-shadow: 0 0 2px gray;
     border: none;
+    min-width: 250px;
 }
 
-a.button {
+a.button,
+button {
     padding: 0.6rem 1rem;
     font-size: 1rem;
     cursor: pointer;
     background-color: var(--color, var(--gray));
-    color: white;
     border: none;
     border-radius: 1rem;
     font-weight: 600;
     transition: 0.2s ease;
     justify-content: center;
     text-decoration: none;
+}
+
+.grid {
+    display: grid;
+}
+
+.grid.auto-fit {
+    grid-template-columns: repeat(auto-fit, minmax(var(--size, 300px), 1fr));
+}
+
+.grid.auto-fill {
+    grid-template-columns: repeat(auto-fill, minmax(var(--size, 300px), 1fr));
+}
+
+.gap {
+    gap: 1rem;
+}
+
+.flex {
+    display: flex;
+}
+
+.flex.column {
+    flex-direction: column;
+}
+
+.flex.wrap {
+    flex-wrap: wrap;
+}
+
+.flex.space-between {
+    justify-content: space-between;
+}
+
+.flex.align-items-center {
+    align-items: center;
+}
+
+
+
+button:hover,
+a.button:hover {
+    translate: 0 -0.125rem;
+}
+
+td:not(:first-child) {
+    text-align: center;
+}
+
+td {
+    height: 3rem;
+}
+
+.divisor {
+    height: 1px;
+    width: 100%;
+    background-color: var(--gray);
+    margin: 1rem 0;
 }

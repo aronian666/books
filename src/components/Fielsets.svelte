@@ -1,6 +1,5 @@
 <script>
-    import { getContext, onMount } from "svelte";
-    import Input from "./Input.svelte";
+    import { onMount } from "svelte";
 
     export let object;
     export let recommendations = false;
@@ -32,7 +31,7 @@
     const form = extend ? object.form : [object.form[0]];
 </script>
 
-{#each form as { name, key, required, extend, type, exact }}
+{#each form as { name, key, required, extend, type, exact, edit: editSuperior, options }}
     {#if object[key] && typeof object[key] === "object"}
         <fieldset>
             <legend>{name}</legend>
@@ -41,23 +40,47 @@
                 recommendations={true}
                 {exact}
                 {extend}
-                {edit}
+                edit={editSuperior}
             />
         </fieldset>
     {:else}
         <p>
             <label for={`${object.constructor.name}[${key}]`}>{name}</label>
-            {#if type == "number"}
-                <input type="number" bind:value={object[key]} />
-            {:else}
-                <Input
+            {#if options}
+                <div class="flex gap">
+                    {#each options as option}
+                        <label class="radio">
+                            <input
+                                type="radio"
+                                bind:group={object[key]}
+                                value={option}
+                                disabled={edit ||
+                                    (object._id && key !== "name")}
+                            />
+                            {option}
+                        </label>
+                    {/each}
+                </div>
+            {:else if type == "number"}
+                <input
+                    type="number"
                     bind:value={object[key]}
-                    {type}
-                    list={`${object.constructor.name}[${key}s]`}
-                    name={`${object.constructor.name}[${key}]`}
-                    id={`${object.constructor.name}[${key}]`}
+                    readonly={edit || (object._id && key !== "name")}
+                />
+            {:else if type == "date"}
+                <input
+                    type="date"
+                    bind:value={object[key]}
+                    readonly={edit || (object._id && key !== "name")}
+                />
+            {:else}
+                <input
+                    type="text"
                     on:change={(e) => onChange(e, key)}
                     {required}
+                    readonly={edit || (object._id && key !== "name")}
+                    bind:value={object[key]}
+                    list={`${object.constructor.name}[names]`}
                 />
             {/if}
             {#if results.length && key === "name"}

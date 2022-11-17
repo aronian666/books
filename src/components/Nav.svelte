@@ -34,7 +34,8 @@
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
-        background-color: black;
+        background-color: white;
+        border-right: 1px solid var(--gray);
     }
     a {
         padding: 1rem;
