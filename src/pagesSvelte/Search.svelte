@@ -4,8 +4,9 @@
     import Book from "../Models/Book";
     import Loading from "../components/Loading.svelte";
     import Form from "../components/Form.svelte";
+    export let search = "";
     let filter = {
-        search: "",
+        search: search,
         sort: "name",
         page: 0,
         asc: 1,
@@ -31,6 +32,15 @@
             count = data.count;
             results = data.results.map((i) => new Book(i));
             loading = false;
+            setTimeout(() => {
+                try {
+                    window.history.replaceState(
+                        null,
+                        null,
+                        "?search=" + filter.search
+                    );
+                } catch {}
+            }, 600);
         });
     });
     $: assignSearch(filter);
