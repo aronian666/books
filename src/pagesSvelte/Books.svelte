@@ -1,6 +1,4 @@
 <script>
-    import Button from "../components/Button.svelte";
-
     import CodeReader from "../components/CodeReader.svelte";
     import Input from "../components/Input.svelte";
     import Loading from "../components/Loading.svelte";
@@ -74,13 +72,13 @@
 
 <main>
     <h1>Agregar libros</h1>
-    <Input placeholder="Codigo ISBN 13" bind:value={code} />
+    <input type="text" placeholder="Codigo ISBN 13" bind:value={code} />
     {#if camera}
         <section>
             <CodeReader bind:result={code} />
         </section>
     {:else}
-        <Button on:click={(e) => (camera = true)}>Abrir camara</Button>
+        <button on:click={(e) => (camera = true)}>Abrir camara</button>
     {/if}
     <Modal
         bind:dialog
@@ -137,7 +135,7 @@
                         {/each}
                     </datalist>
                 </div>
-                <Button
+                <button
                     on:click={(e) => {
                         loading = true;
                         Book.saveByIsbn(book).then(() => {
@@ -148,7 +146,7 @@
                             book.image = null;
                             book.editorial.name = "Sin Editorial";
                         });
-                    }}>Confimar</Button
+                    }}>Confimar</button
                 >
             </section>
         {:else}

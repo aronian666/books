@@ -86,7 +86,7 @@
             model={Lend}
             exact={[{ name: "book._id", value: object._id }]}
             title="Prestamos"
-            sort="book.name"
+            sort="updatedAt"
             table="shortTable"
             bind:results={lends}
             let:index
@@ -96,7 +96,10 @@
                 bind:results={lends}
                 {index}
                 {result}
-                onUpdate={() => object.count++}
+                onUpdate={() => {
+                    object.count++;
+                    Lend.exact[0].value = "Devuelto";
+                }}
             />
         </Table>
     </section>

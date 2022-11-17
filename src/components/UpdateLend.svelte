@@ -17,6 +17,7 @@
                 message,
                 status: "Devuelto",
                 book: { _id: result.book._id },
+                returnDay: new Date().toString(),
             },
             true
         );
@@ -29,18 +30,18 @@
 </script>
 
 <td>
-    {#if result.status === "Prestado"}
-        <button
-            style="--color: var(--yellow); padding: .4rem .8rem"
-            on:click={(e) => {
-                $dialog.showModal();
-            }}
-        >
-            Detalles
-        </button>
-    {:else}
-        {result.message}
-    {/if}
+    <button
+        style={`--color: ${
+            result.status === "Prestado"
+                ? "var(--yellow)"
+                : "green; color:white"
+        }`}
+        on:click={(e) => {
+            $dialog.showModal();
+        }}
+    >
+        {result.status === "Prestado" ? "Devolver" : "Detalles"}
+    </button>
 </td>
 
 <Modal bind:dialog id={`message${index}`}>
@@ -60,16 +61,30 @@
                 <span>Fecha de retorno</span>
                 <p>{result.returnDate.toDateString()}</p>
             </div>
-            <div>
-                <span>Restante</span>
-                <p>{result.difference} dias</p>
-            </div>
-            <div class="grid">
-                <label for="message">Observaciones</label>
-                <input type="text" bind:value={message} />
-            </div>
 
-            <button style="--color: var(--blue); color:white">Entregar</button>
+            {#if result.status === "Prestado"}
+                <div>
+                    <span>Restante</span>
+                    <p>{result.difference} dias</p>
+                </div>
+                <div class="grid">
+                    <label for="message">Observaciones</label>
+                    <input type="text" bind:value={message} />
+                </div>
+
+                <button style="--color: var(--blue); color:white"
+                    >Entregar</button
+                >
+            {:else}
+                <div>
+                    <span>Devuelto el</span>
+                    <p>{result.returnDay.toDateString()}</p>
+                </div>
+                <div>
+                    <span>Mensaje</span>
+                    <p>{result.message}</p>
+                </div>
+            {/if}
         </form>
     {/if}
 </Modal>
@@ -81,5 +96,8 @@
     }
     p {
         color: gray;
+    }
+    button {
+        padding: 0.4rem 0.8rem;
     }
 </style>

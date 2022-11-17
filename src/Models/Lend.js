@@ -3,14 +3,15 @@ import Book from "./Book"
 import Student from './Student'
 
 export default class Lend extends ActiveRecord {
-    static properties = "_id student {name last _id} book {_id name} createdAt returnDate status message"
-    constructor({ _id, book = {}, student = {}, returnDate, createdAt, message = "", status } = {}) {
+    static properties = "_id student {name last _id} book {_id name} createdAt returnDate status message returnDay"
+    constructor({ _id, book = {}, student = {}, returnDate, createdAt, message = "", status, returnDay } = {}) {
         super(Lend)
         this._id = _id
         this.book = new Book(book)
         this.student = new Student(student)
         this.returnDate = returnDate && new Date(Number(returnDate))
         this.createdAt = createdAt && new Date(Number(createdAt))
+        this.returnDay = returnDay && new Date(Number(returnDay))
         this.message = message
         this.status = status
     }
