@@ -1,0 +1,10 @@
+---
+import Nav from "../../components/Nav.svelte";
+import Layout from "../../layouts/Layout.astro";
+import Books from "../../pagesSvelte/Books.svelte";
+---
+
+<Layout title="Libros">
+    <Nav client:visible />
+    <Books client:visible />
+</Layout>

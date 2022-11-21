@@ -1,5 +1,6 @@
 <script>
     import Loading from "./Loading.svelte";
+
     export let model;
     export let exact = [];
 
@@ -56,7 +57,18 @@
         {#each model.exact as algo}
             <div class="grid">
                 <label for={algo.name}> {algo.name} </label>
-                <select name={algo.name} id={algo.name} bind:value={algo.value}>
+                <select
+                    name={algo.name}
+                    id={algo.name}
+                    bind:value={algo.value}
+                    on:change={(e) => {
+                        const option = algo.options.find(
+                            (option) => option.value === e.target.value
+                        );
+                        table = model.tables[option.table];
+                        loading = true;
+                    }}
+                >
                     {#each algo.options as option}
                         <option value={option.value}>{option.name}</option>
                     {/each}
@@ -65,11 +77,13 @@
         {/each}
     </div>
 </section>
-{#if results.length}
+{#if loading}
+    <Loading />
+{:else if results.length}
     <table>
         <thead>
             <tr>
-                {#each model[table] as { sort, name }}
+                {#each table as { sort, name }}
                     <th
                         class={sort === filter.sort
                             ? filter.asc === 1
@@ -86,57 +100,53 @@
             </tr>
         </thead>
         <tbody>
-            {#if loading}
-                <Loading />
-            {:else}
-                {#each results as result, index}
-                    <tr>
-                        {#each model[table] as { key, transform, path, className }}
-                            <td>
-                                {#if path}
-                                    <a
-                                        href={path(result)}
-                                        class={typeof className === "function"
-                                            ? className(result)
-                                            : className}
-                                    >
-                                        {transform
-                                            ? transform(result[key])
-                                            : result[key]}
-                                    </a>
-                                {:else}
-                                    <span
-                                        class={typeof className === "function"
-                                            ? className(result)
-                                            : className}
-                                    >
-                                        {transform
-                                            ? transform(result[key])
-                                            : result[key]}
-                                    </span>
-                                {/if}
-                            </td>
-                        {/each}
-                        <slot {result} {index} />
-                    </tr>
-                {/each}
-            {/if}
+            {#each results as result, index}
+                <tr>
+                    {#each table as { key, transform, path, className }}
+                        <td>
+                            {#if path}
+                                <a
+                                    href={path(result)}
+                                    class={typeof className === "function"
+                                        ? className(result)
+                                        : className}
+                                >
+                                    {transform
+                                        ? transform(result[key])
+                                        : result[key]}
+                                </a>
+                            {:else}
+                                <span
+                                    class={typeof className === "function"
+                                        ? className(result)
+                                        : className}
+                                >
+                                    {transform
+                                        ? transform(result[key])
+                                        : result[key]}
+                                </span>
+                            {/if}
+                        </td>
+                    {/each}
+                    <slot {result} {index} />
+                </tr>
+            {/each}
         </tbody>
     </table>
-    <section class="flex gap">
-        {#each Array(((count / 10) ^ 0) + 1).fill(0) as a, i}
-            <button
-                class="page"
-                class:active={i === filter.page}
-                on:click={(e) => (filter.page = i)}
-            >
-                {i + 1}
-            </button>
-        {/each}
-    </section>
 {:else}
     <p>No hay registros</p>
 {/if}
+<section class="flex gap">
+    {#each Array(((count / 11) ^ 0) + 1).fill(0) as a, i}
+        <button
+            class="page"
+            class:active={i === filter.page}
+            on:click={(e) => (filter.page = i)}
+        >
+            {i + 1}
+        </button>
+    {/each}
+</section>
 
 <style>
     .main {

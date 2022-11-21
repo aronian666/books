@@ -2,8 +2,8 @@
     import Button from "./Button.svelte";
 
     const routes = [
-        { name: "Buscar", src: "", icon: "search" },
-        { name: "Agregar libro", src: "books", icon: "books" },
+        { name: "Prestamos", src: "", icon: "search" },
+        { name: "Libros", src: "books", icon: "books" },
     ];
     let hidden = true;
 </script>

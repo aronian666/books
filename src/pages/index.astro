@@ -1,12 +1,10 @@
 ---
+import Lends from "../components/Lends.svelte";
 import Nav from "../components/Nav.svelte";
 import Layout from "../layouts/Layout.astro";
-import Search from "../pagesSvelte/Search.svelte";
-const url = new URL(Astro.request.url);
-const search = url.searchParams.get("search") || "";
 ---
 
 <Layout title="Libros">
 	<Nav client:visible />
-	<Search client:visible search={search} />
+	<Lends client:visible />
 </Layout>

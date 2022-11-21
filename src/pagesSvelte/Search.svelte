@@ -4,6 +4,7 @@
     import Book from "../Models/Book";
     import Loading from "../components/Loading.svelte";
     import Form from "../components/Form.svelte";
+    import { toXLSX } from "../Models/Utils";
     export let search = "";
     let filter = {
         search: search,
@@ -58,15 +59,16 @@
 </script>
 
 <main>
-    <header>
-        <h1>Buscar</h1>
-        <div class="flex" style="gap: .5rem">
-            <button
-                on:click={(e) => Book.export()}
-                style="--color: #10793F; color:white">Descargar</button
-            >
-            <button on:click={(e) => $dialog.showModal()}>Agregar</button>
-        </div>
+    <h1>Libros</h1>
+    <header class="flex wrap" style="gap: .5rem">
+        <button
+            on:click={(e) => toXLSX(Book)}
+            style="--color: #10793F; color:white">Descargar</button
+        >
+        <button on:click={(e) => $dialog.showModal()}>Agregar nuevo</button>
+        <a style="--color: var(--yellow)" class="button" href="/books/new"
+            >Agregar por ISBN</a
+        >
     </header>
     <Input
         type="search"
@@ -75,19 +77,30 @@
         bind:value={filter.search}
     />
     <section class="books">
-        {#each results as book}
-            <div class="book">
-                <img
-                    src={book.image ||
-                        "https://i0.wp.com/css-tricks.com/wp-content/uploads/2017/08/card-skeleton@2x.png?w=300&ssl=1"}
-                    alt={book.name}
-                />
-                <a href={`/books/${book._id}`} title={book.name}>
-                    {book.name}
-                </a>
-                <span>{book.author.name}</span>
-            </div>
-        {/each}
+        {#if loading}
+            <Loading />
+        {:else}
+            {#each results as book}
+                <div class="book">
+                    <a href={`/books/${book._id}`} title={book.name}>
+                        <img
+                            src={book.image ||
+                                "https://i0.wp.com/css-tricks.com/wp-content/uploads/2017/08/card-skeleton@2x.png?w=300&ssl=1"}
+                            alt={book.name}
+                        />
+                    </a>
+                    <a href={`/books/${book._id}`} title={book.name}>
+                        {book.name}
+                    </a>
+                    <a
+                        href="/authors/{book.author._id}"
+                        style="color: gray; font-weight: 400"
+                    >
+                        {book.author.name}
+                    </a>
+                </div>
+            {/each}
+        {/if}
     </section>
     <section class="paginate">
         {#each Array(((count / 20) ^ 0) + 1).fill(0) as a, i}
@@ -109,9 +122,6 @@
 </Modal>
 
 <style>
-    h1 {
-        color: var(--yellow);
-    }
     .active {
         background-color: var(--yellow);
         color: white;
@@ -126,10 +136,6 @@
         aspect-ratio: 2/3;
         border-radius: 0.5rem;
     }
-    header {
-        display: flex;
-        justify-content: space-between;
-    }
     .books {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
@@ -140,7 +146,8 @@
         display: grid;
         border-radius: 1rem;
         gap: 0.5rem;
-        border: 1px solid #00000020;
+        border: 1px solid #00000010;
+        transition: 0.2s;
     }
     a {
         color: black;
@@ -153,7 +160,7 @@
     a:hover {
         text-decoration: underline;
     }
-    span {
-        color: gray;
+    .book:hover {
+        translate: 0 -0.25rem;
     }
 </style>

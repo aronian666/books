@@ -2,10 +2,12 @@
 import Category from "../../Models/Category";
 import Layout from "../../layouts/Layout.astro";
 import CategoryComponent from "../../components/Category.svelte";
+import Nav from "../../components/Nav.svelte";
 const { id } = Astro.params;
 const category = (await Category.findById(id)) as Category;
 ---
 
 <Layout title={category.name}>
+    <Nav client:visible />
     <CategoryComponent object={category} client:visible />
 </Layout>

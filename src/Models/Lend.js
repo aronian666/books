@@ -24,30 +24,26 @@ export default class Lend extends ActiveRecord {
         { name: "Estudiante", key: "student", required: true },
         { name: "Fecha de retorno", key: "returnDate", required: true, type: "date" }
     ]
-    static table = [
-        { sort: "book.name", name: "Libro", key: "book", path(o) { return `/books/${o.book._id}` }, transform({ name }) { return name }, className: "name" },
-        { sort: "student.name", name: "Estudiante", path(o) { return `/students/${o.student._id}` }, key: "student", transform(student) { return student.fullName } },
-        { name: "Dias faltantes", key: "difference", transform(day) { return `${day} dias` } },
-    ]
-    static studentTable = [
-        { sort: "book.name", name: "Libro", path(o) { return `/books/${o.book._id}` }, key: "book", transform(book) { return book.name } },
-        { name: "Restante", key: "difference", transform(day) { return `${day} dias` } },
-    ]
-    static shortTable = [
-        { sort: "student.name", name: "Estudiante", path(o) { return `/students/${o.student._id}` }, key: "student", transform(student) { return student.fullName } },
-        { name: "Restante", key: "difference", transform(day) { return `${day} dias` } },
-    ]
-    get statusClass() {
-        if (this.status === "Prestado") return "bold lend"
-        if (this.status === "Devuelto") return "bold back"
-        return ""
+    static tables = {
+        large: [
+            { sort: "book.name", name: "Libro", key: "book", path(o) { return `/books/${o.book._id}` }, transform({ name }) { return name }, className: "name" },
+            { sort: "student.name", name: "Estudiante", path(o) { return `/students/${o.student._id}` }, key: "student", transform(student) { return student.fullName } },
+            { sort: "createdAt", key: "createdAt", name: "Creado", transform(date) { return date.toLocaleString() } },
+            { name: "Dias faltantes", key: "difference", transform(day) { return `${day} dias` } },
+            { name: "Fecha de entrega", key: "returnDate", transform(date) { return date.toDateString() } }
+        ],
+        returned: [
+            { sort: "book.name", name: "Libro", key: "book", path(o) { return `/books/${o.book._id}` }, transform({ name }) { return name }, className: "name" },
+            { sort: "student.name", name: "Estudiante", path(o) { return `/students/${o.student._id}` }, key: "student", transform(student) { return student.fullName } },
+            { sort: "createdAt", key: "createdAt", name: "Creado", transform(date) { return date.toLocaleString() } },
+            { name: "Fecha de retorno", key: "returnDay", transform(date) { return date.toLocaleString() } },
+        ],
     }
     static exact = [
         {
             name: "Estado", options: [
-                { name: "Todos", value: "" },
-                { name: "Devuelto", value: "Devuelto" },
-                { name: "Prestado", value: "Prestado" }
+                { name: "Devuelto", value: "Devuelto", table: "returned" },
+                { name: "Prestado", value: "Prestado", table: "large" }
             ], key: "status", value: "Prestado"
         }
     ]

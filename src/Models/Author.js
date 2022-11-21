@@ -2,11 +2,12 @@ import ActiveRecord from "./ActiveRecord";
 import Book from "./Book";
 
 export default class Author extends ActiveRecord {
-    constructor({ _id, name = "", createdAt } = {}) {
+    constructor({ _id, name = "", createdAt, updatedAt } = {}) {
         super(Author)
         this._id = _id
         this.name = name;
         this.createdAt = createdAt && new Date(Number(createdAt))
+        this.updatedAt = updatedAt && new Date(Number(updatedAt))
     }
     get children() {
         return {
@@ -15,7 +16,7 @@ export default class Author extends ActiveRecord {
             title: "Libros"
         }
     }
-    static properties = "_id name createdAt"
+    static properties = "_id name createdAt updatedAt"
     form = [
         { key: "name", name: "Nombre" }
     ]

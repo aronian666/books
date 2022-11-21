@@ -14,6 +14,7 @@
     let editDialog;
     let createDialog;
     let loading = false;
+    let table = Lend.tables.large;
     const update = async () => {
         loading = true;
         const newObject = await Book.save(object);
@@ -22,12 +23,13 @@
         $editDialog.close();
     };
     const createLend = async () => {
-        const l = await Lend.save(lend);
-        lends.push(l);
-        lends = lends;
+        await Lend.save(lend);
+        Lend.exact[0].value = "Prestado";
+        table = Lend.tables.large;
         $createDialog.close();
         lend = new Lend({ book: object });
         lend.form[0].edit = true;
+        object.count--;
     };
 </script>
 
@@ -80,14 +82,17 @@
     <section class="grid gap">
         <div class="flex gap space-between align-items-center">
             <h2>Prestamos</h2>
-            <button on:click={(e) => $createDialog.showModal()}>Agregar</button>
+            <button
+                disabled={object.count === 0}
+                on:click={(e) => $createDialog.showModal()}>Agregar</button
+            >
         </div>
         <Table
             model={Lend}
             exact={[{ name: "book._id", value: object._id }]}
             title="Prestamos"
-            sort="updatedAt"
-            table="shortTable"
+            sort="createdAt"
+            {table}
             bind:results={lends}
             let:index
             let:result
@@ -99,6 +104,7 @@
                 onUpdate={() => {
                     object.count++;
                     Lend.exact[0].value = "Devuelto";
+                    table = Lend.tables.returned;
                 }}
             />
         </Table>

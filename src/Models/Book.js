@@ -72,9 +72,9 @@ export default class Book extends ActiveRecord {
     static exact = [
         {
             name: "Estado", options: [
-                { name: "Todos", value: "" },
-                { name: "Disponible", value: "Disponible" },
-                { name: "Agotado", value: "Agotado" }
+                { name: "Todos", value: "", table: "table" },
+                { name: "Disponible", value: "Disponible", table: "table" },
+                { name: "Agotado", value: "Agotado", table: "table" }
             ], key: "status", value: ""
         }
     ]

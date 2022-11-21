@@ -2,10 +2,12 @@
 import Layout from "../../layouts/Layout.astro";
 import Author from "../../Models/Author";
 import AuthorComponent from "../../components/Author.svelte";
+import Nav from "../../components/Nav.svelte";
 const { id } = Astro.params;
 const author = (await Author.findById(id)) as Author;
 ---
 
 <Layout title={author.name}>
+    <Nav client:visible />
     <AuthorComponent object={author} client:visible />
 </Layout>
